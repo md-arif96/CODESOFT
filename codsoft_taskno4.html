@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie Recommendation System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 30px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .genres {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .genres label {
+      background: #007bff;
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .genres input[type="checkbox"] {
+      display: none;
+    }
+    .genres input[type="checkbox"]:checked + span {
+      background: #0056b3;
+    }
+    button {
+      padding: 10px 20px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #28a745;
+      color: #fff;
+      cursor: pointer;
+    }
+    #recommendations {
+      width: 300px;
+      min-height: 50px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #recommendations ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Movie Recommendation System</h1>
+
+  <div class="genres">
+    <label><input type="checkbox" value="Action"><span>Action</span></label>
+    <label><input type="checkbox" value="Comedy"><span>Comedy</span></label>
+    <label><input type="checkbox" value="Drama"><span>Drama</span></label>
+    <label><input type="checkbox" value="Sci-Fi"><span>Sci-Fi</span></label>
+    <label><input type="checkbox" value="Romance"><span>Romance</span></label>
+  </div>
+
+  <button onclick="getRecommendations()">Get Recommendations</button>
+
+  <div id="recommendations">
+    <strong>Recommended Movies:</strong>
+    <ul id="movieList"></ul>
+  </div>
+
+  <script>
+    const movies = [
+      {name: "Avengers", genre: "Action"},
+      {name: "Jumanji", genre: "Action"},
+      {name: "Die Hard", genre: "Action"},
+      {name: "The Hangover", genre: "Comedy"},
+      {name: "Superbad", genre: "Comedy"},
+      {name: "Titanic", genre: "Drama"},
+      {name: "The Godfather", genre: "Drama"},
+      {name: "Inception", genre: "Sci-Fi"},
+      {name: "Interstellar", genre: "Sci-Fi"},
+      {name: "The Notebook", genre: "Romance"},
+      {name: "La La Land", genre: "Romance"}
+    ];
+
+    function getRecommendations() {
+      const selectedGenres = Array.from(document.querySelectorAll('.genres input:checked')).map(cb => cb.value);
+      const recommended = movies.filter(movie => selectedGenres.includes(movie.genre));
+
+      const movieList = document.getElementById('movieList');
+      movieList.innerHTML = '';
+
+      if (recommended.length === 0) {
+        movieList.innerHTML = '<li>No recommendations selected. Please choose a genre.</li>';
+      } else {
+        recommended.forEach(movie => {
+          const li = document.createElement('li');
+          li.textContent = movie.name + " (" + movie.genre + ")";
+          movieList.appendChild(li);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
