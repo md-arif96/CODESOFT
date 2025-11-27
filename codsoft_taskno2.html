@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Toe AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f2f2f2;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      cursor: pointer;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      user-select: none;
+    }
+    .cell.disabled {
+      pointer-events: none;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tic-Tac-Toe AI</h1>
+  <div class="board" id="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+  <div id="status"></div>
+  <button onclick="restartGame()">Restart Game</button>
+
+  <script>
+    const human = 'X';
+    const ai = 'O';
+    let board = Array(9).fill('');
+    const cells = document.querySelectorAll('.cell');
+    const status = document.getElementById('status');
+
+    // Winning combinations
+    const winCombos = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    // Initialize click events
+    cells.forEach(cell => cell.addEventListener('click', humanMove));
+
+    function humanMove(e) {
+      const idx = e.target.dataset.index;
+      if (board[idx] === '') {
+        makeMove(idx, human);
+        if (!checkGameOver(board)) aiMove();
+      }
+    }
+
+    function aiMove() {
+      const best = minimax(board, ai);
+      makeMove(best.index, ai);
+      checkGameOver(board);
+    }
+
+    function makeMove(idx, player) {
+      board[idx] = player;
+      cells[idx].textContent = player;
+      cells[idx].classList.add('disabled');
+    }
+
+    function checkGameOver(newBoard) {
+      const winner = getWinner(newBoard);
+      if (winner) {
+        status.textContent = winner === 'tie' ? "It's a Tie!" : `${winner} Wins!`;
+        cells.forEach(c => c.classList.add('disabled'));
+        return true;
+      }
+      return false;
+    }
+
+    function getWinner(bd) {
+      for (let combo of winCombos) {
+        const [a,b,c] = combo;
+        if (bd[a] && bd[a] === bd[b] && bd[a] === bd[c]) return bd[a];
+      }
+      return bd.includes('') ? null : 'tie';
+    }
+
+    function restartGame() {
+      board = Array(9).fill('');
+      cells.forEach(c => {
+        c.textContent = '';
+        c.classList.remove('disabled');
+      });
+      status.textContent = '';
+    }
+
+    // Minimax algorithm
+    function minimax(newBoard, player) {
+      const availSpots = newBoard.map((v,i) => v === '' ? i : null).filter(v => v !== null);
+
+      const winner = getWinner(newBoard);
+      if (winner === human) return {score: -10};
+      if (winner === ai) return {score: 10};
+      if (availSpots.length === 0) return {score: 0};
+
+      const moves = [];
+      for (let i of availSpots) {
+        const move = {};
+        move.index = i;
+        newBoard[i] = player;
+
+        if (player === ai) {
+          const result = minimax(newBoard, human);
+          move.score = result.score;
+        } else {
+          const result = minimax(newBoard, ai);
+          move.score = result.score;
+        }
+
+        newBoard[i] = '';
+        moves.push(move);
+      }
+
+      let bestMove;
+      if (player === ai) {
+        let bestScore = -Infinity;
+        for (let m of moves) {
+          if (m.score > bestScore) {
+            bestScore = m.score;
+            bestMove = m;
+          }
+        }
+      } else {
+        let bestScore = Infinity;
+        for (let m of moves) {
+          if (m.score < bestScore) {
+            bestScore = m.score;
+            bestMove = m;
+          }
+        }
+      }
+
+      return bestMove;
+    }
+  </script>
+</body>
+</html>
